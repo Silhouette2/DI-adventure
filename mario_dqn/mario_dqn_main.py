@@ -6,7 +6,7 @@ from ding.config import compile_config
 from ding.worker import BaseLearner, SampleSerialCollector, InteractionSerialEvaluator, AdvancedReplayBuffer
 from ding.envs import SyncSubprocessEnvManager, DingEnvWrapper, BaseEnvManager
 from wrapper import MaxAndSkipWrapper, WarpFrameWrapper, ScaledFloatFrameWrapper, FrameStackWrapper, \
-    FinalEvalRewardEnv
+    FinalEvalRewardEnv, StickyActionWrapper, SparseRewardWrapper, CoinRewardWrapper
 from policy import DQNPolicy
 from model import DQN
 from ding.utils import set_pkg_seed
@@ -20,8 +20,8 @@ import gym_super_mario_bros
 
 
 # 动作相关配置
-action_dict = {2: [["right"], ["right", "A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
-action_nums = [2, 7, 12]
+action_dict = {2: [["right"], ["right", "A"]], 5: [["right"], ["right","A"], ["left"], ["left","A"], ["A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
+action_nums = [2, 5, 7, 12]
 
 
 # mario环境
@@ -43,6 +43,8 @@ def wrapped_mario_env(version=0, action=7, obs=1):
                 # 默认wrapper：在评估一局游戏结束时返回累计的奖励，方便统计
                 lambda env: FinalEvalRewardEnv(env),
                 # 以下是你添加的wrapper
+                lambda env: SparseRewardWrapper(env),
+                lambda env: CoinRewardWrapper(env)
             ]
         }
     )
@@ -130,11 +132,13 @@ if __name__ == "__main__":
     # 游戏版本，v0 v1 v2 v3 四种选择
     parser.add_argument("--version", "-v", type=int, default=0, choices=[0,1,2,3])
     # 动作集合种类，包含[["right"], ["right", "A"]]、SIMPLE_MOVEMENT、COMPLEX_MOVEMENT，分别对应2、7、12个动作
-    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,7,14])
+    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,5,7,12])
     # 观测空间叠帧数目，不叠帧或叠四帧
     parser.add_argument("--obs", "-o", type=int, default=1, choices=[1,4])
+    # 实例名称
+    parser.add_argument("--name", "-n", type=str, default='')
     args = parser.parse_args()
-    mario_dqn_config.exp_name = 'exp/v'+str(args.version)+'_'+str(args.action)+'a_'+str(args.obs)+'f_seed'+str(args.seed)
+    mario_dqn_config.exp_name = 'exp/'+args.name+'_v'+str(args.version)+'_'+str(args.action)+'a_'+str(args.obs)+'f_seed'+str(args.seed)
     mario_dqn_config.policy.model.obs_shape=[args.obs, 84, 84]
     mario_dqn_config.policy.model.action_shape=args.action
     main(deepcopy(mario_dqn_config), args, seed=args.seed)

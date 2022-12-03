@@ -60,7 +60,7 @@ class SparseRewardWrapper(gym.Wrapper):
         dead = True if reward == -15 else False
         reward = 0
         if info['flag_get']:
-            reward = 15
+            reward = 75
         if dead:
             reward = -15
         return obs, reward, done, info
