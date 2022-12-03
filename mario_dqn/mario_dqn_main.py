@@ -6,7 +6,7 @@ from ding.config import compile_config
 from ding.worker import BaseLearner, SampleSerialCollector, InteractionSerialEvaluator, AdvancedReplayBuffer
 from ding.envs import SyncSubprocessEnvManager, DingEnvWrapper, BaseEnvManager
 from wrapper import MaxAndSkipWrapper, WarpFrameWrapper, ScaledFloatFrameWrapper, FrameStackWrapper, \
-    FinalEvalRewardEnv, StickyActionWrapper, SparseRewardWrapper, CoinRewardWrapper
+    FinalEvalRewardEnv, MoveEncouragementWrapper, StickyActionWrapper, SparseRewardWrapper, CoinRewardWrapper
 from policy import DQNPolicy
 from model import DQN
 from ding.utils import set_pkg_seed
@@ -43,6 +43,8 @@ def wrapped_mario_env(version=0, action=7, obs=1):
                 # 默认wrapper：在评估一局游戏结束时返回累计的奖励，方便统计
                 lambda env: FinalEvalRewardEnv(env),
                 # 以下是你添加的wrapper
+                # lambda env: MoveEncouragementWrapper(env),
+                lambda env: StickyActionWrapper(env, p_sticky=0.25),
                 lambda env: SparseRewardWrapper(env),
                 lambda env: CoinRewardWrapper(env)
             ]
@@ -50,7 +52,7 @@ def wrapped_mario_env(version=0, action=7, obs=1):
     )
 
 
-def main(cfg, args, seed=0, max_env_step=int(3e6)):
+def main(cfg, args, seed=0, max_env_step=int(5e6)):
     # Easydict类实例，包含一些配置
     cfg = compile_config(
         cfg,

@@ -4,6 +4,7 @@ wrapper定义文件
 from typing import Union, List, Tuple, Callable
 from ding.envs.env_wrappers import MaxAndSkipWrapper, WarpFrameWrapper, ScaledFloatFrameWrapper, FrameStackWrapper, \
     FinalEvalRewardEnv
+from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT
 import gym
 import numpy as np
 import cv2
@@ -41,6 +42,19 @@ class StickyActionWrapper(gym.ActionWrapper):
         return return_action
 
 
+
+class MoveEncouragementWrapper(gym.Wrapper):
+    def __init__(self, env: gym.Env, p_move=0.5):
+        super().__init__(env)
+        self.p_move = p_move
+
+    def action(self, action):
+        if action == 0 and np.random.random() < self.p_move:
+            return_action = np.random.randint(1,7)
+        return return_action
+
+
+
 # 稀疏奖励wrapper
 class SparseRewardWrapper(gym.Wrapper):
     """
@@ -60,7 +74,7 @@ class SparseRewardWrapper(gym.Wrapper):
         dead = True if reward == -15 else False
         reward = 0
         if info['flag_get']:
-            reward = 75
+            reward = 100
         if dead:
             reward = -15
         return obs, reward, done, info

@@ -14,8 +14,8 @@ from nes_py.wrappers import JoypadSpace
 from wrapper import MaxAndSkipWrapper, WarpFrameWrapper, ScaledFloatFrameWrapper, FrameStackWrapper, \
     FinalEvalRewardEnv, RecordCAM
 
-action_dict = {2: [["right"], ["right", "A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
-action_nums = [2, 7, 12]
+action_dict = {2: [["right"], ["right", "A"]], 5: [["right"], ["right","A"], ["left"], ["left","A"], ["A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
+action_nums = [2, 5, 7, 12]
 
 
 def wrapped_mario_env(model, cam_video_path, version=0, action=2, obs=1):
@@ -64,7 +64,7 @@ def evaluate(args, state_dict, seed, video_dir_path, eval_times):
             # 将动作传入环境，环境返回下一帧信息
             obs, reward, done, info = env.step(action)
             eval_reward += reward
-            if done or info['time'] < 250:
+            if done or info['time'] < 0:
                 print(info)
                 eval_reward_list.append(eval_reward)
                 break
@@ -84,7 +84,7 @@ if __name__ == "__main__":
     parser.add_argument("--checkpoint", "-ckpt", type=str, default='./exp/v0_1a_7f_seed0/ckpt/ckpt_best.pth.tar')
     parser.add_argument("--replay_path", "-rp", type=str, default='./eval_videos')
     parser.add_argument("--version", "-v", type=int, default=0, choices=[0,1,2,3])
-    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,7,14])
+    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,5,7,12])
     parser.add_argument("--obs", "-o", type=int, default=1, choices=[1,4])
     args = parser.parse_args()
     mario_dqn_config.policy.model.obs_shape=[args.obs, 84, 84]
