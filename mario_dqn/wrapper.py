@@ -97,7 +97,7 @@ class CoinRewardWrapper(gym.Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        reward += (info['coins'] - self.num_coins) * 10
+        reward += (info['coins'] - self.num_coins) * 20
         self.num_coins = info['coins']
         return obs, reward, done, info
 

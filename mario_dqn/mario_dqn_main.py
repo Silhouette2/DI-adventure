@@ -43,8 +43,8 @@ def wrapped_mario_env(version=0, action=7, obs=1):
                 # 默认wrapper：在评估一局游戏结束时返回累计的奖励，方便统计
                 lambda env: FinalEvalRewardEnv(env),
                 # 以下是你添加的wrapper
-                # lambda env: MoveEncouragementWrapper(env),
-                lambda env: StickyActionWrapper(env, p_sticky=0.25),
+                lambda env: MoveEncouragementWrapper(env),
+                # lambda env: StickyActionWrapper(env, p_sticky=0.25),
                 lambda env: SparseRewardWrapper(env),
                 lambda env: CoinRewardWrapper(env)
             ]
