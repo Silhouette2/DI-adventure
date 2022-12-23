@@ -74,7 +74,7 @@ class SparseRewardWrapper(gym.Wrapper):
         dead = True if reward == -15 else False
         reward = 0
         if info['flag_get']:
-            reward = 100
+            reward = 75    # 15
         if dead:
             reward = -15
         return obs, reward, done, info
@@ -97,7 +97,7 @@ class CoinRewardWrapper(gym.Wrapper):
 
     def step(self, action):
         obs, reward, done, info = self.env.step(action)
-        reward += (info['coins'] - self.num_coins) * 20
+        reward += (info['coins'] - self.num_coins) * 10   # 10
         self.num_coins = info['coins']
         return obs, reward, done, info
 

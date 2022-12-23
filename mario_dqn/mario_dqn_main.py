@@ -20,8 +20,8 @@ import gym_super_mario_bros
 
 
 # 动作相关配置
-action_dict = {2: [["right"], ["right", "A"]], 5: [["right"], ["right","A"], ["left"], ["left","A"], ["A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
-action_nums = [2, 5, 7, 12]
+action_dict = {2: [["right"], ["right", "A"]], 7: SIMPLE_MOVEMENT, 12: COMPLEX_MOVEMENT}
+action_nums = [2, 7, 12]
 
 
 # mario环境
@@ -33,7 +33,7 @@ def wrapped_mario_env(version=0, action=7, obs=1):
             # 添加各种wrapper
             'env_wrapper': [
                 # 默认wrapper：跳帧以降低计算量
-                lambda env: MaxAndSkipWrapper(env, skip=4),
+                lambda env: MaxAndSkipWrapper(env, skip=8),
                 # 默认wrapper：将mario游戏环境图片进行处理，返回大小为84X84的图片observation
                 lambda env: WarpFrameWrapper(env, size=84),
                 # 默认wrapper：将observation数值进行归一化
@@ -41,18 +41,18 @@ def wrapped_mario_env(version=0, action=7, obs=1):
                 # 默认wrapper：叠帧，将连续n_frames帧叠到一起，返回shape为(n_frames,84,84)的图片observation
                 lambda env: FrameStackWrapper(env, n_frames=obs),
                 # 默认wrapper：在评估一局游戏结束时返回累计的奖励，方便统计
-                lambda env: FinalEvalRewardEnv(env),
+                lambda env: FinalEvalRewardEnv(env), 
                 # 以下是你添加的wrapper
-                lambda env: MoveEncouragementWrapper(env),
+                # lambda env: MoveEncouragementWrapper(env),
                 # lambda env: StickyActionWrapper(env, p_sticky=0.25),
                 lambda env: SparseRewardWrapper(env),
                 lambda env: CoinRewardWrapper(env)
-            ]
+            ]    
         }
-    )
+    )  
 
 
-def main(cfg, args, seed=0, max_env_step=int(5e6)):
+def main(cfg, args, seed=0, max_env_step=int(3e6)):
     # Easydict类实例，包含一些配置
     cfg = compile_config(
         cfg,
@@ -134,7 +134,7 @@ if __name__ == "__main__":
     # 游戏版本，v0 v1 v2 v3 四种选择
     parser.add_argument("--version", "-v", type=int, default=0, choices=[0,1,2,3])
     # 动作集合种类，包含[["right"], ["right", "A"]]、SIMPLE_MOVEMENT、COMPLEX_MOVEMENT，分别对应2、7、12个动作
-    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,5,7,12])
+    parser.add_argument("--action", "-a", type=int, default=7, choices=[2,7,12])
     # 观测空间叠帧数目，不叠帧或叠四帧
     parser.add_argument("--obs", "-o", type=int, default=1, choices=[1,4])
     # 实例名称
